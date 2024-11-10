@@ -14,17 +14,13 @@ def download_file(url, file_path):
     
     # Download using gdown
     if not os.path.exists(file_path):
-        gdown.download(url, file_path, quiet=False)
-        st.sidebar.text(f"Downloaded {os.path.basename(file_path)}.")
+        gdown.download(url, file_path, quiet=True)  # Silent download
     
     # Verify the downloaded file is a PyTorch model
     if os.path.getsize(file_path) < 1024 * 1024:  # Check for small file sizes
-        st.sidebar.error(f"Download failed for {os.path.basename(file_path)}, re-downloading.")
         os.remove(file_path)
-        gdown.download(url, file_path, quiet=False)
-    else:
-        st.sidebar.text(f"{os.path.basename(file_path)} is ready.")
-
+        gdown.download(url, file_path, quiet=True)
+    
 # Load YOLO model
 @st.cache_resource
 def load_model():
@@ -38,8 +34,8 @@ def load_model():
     model = YOLO(model_path)  # Load the YOLO model directly
     return model
 
-# Process video function
-def process_video(input_path, output_path):
+# Process video function with preview option
+def process_video(input_path, output_path, preview=False):
     model = load_model()
     video = cv2.VideoCapture(input_path)
     fourcc = cv2.VideoWriter_fourcc(*'mp4v')
@@ -62,6 +58,11 @@ def process_video(input_path, output_path):
 
         # Write annotated frame to output
         out.write(annotated_frame)
+
+        # Show preview frame by frame if enabled
+        if preview:
+            st.image(annotated_frame, channels="BGR", use_column_width=True)
+
         progress_bar.progress((i + 1) / frame_count)
 
     video.release()
@@ -74,6 +75,9 @@ st.title("🎾 Tennis Game Tracking 🎾")
 st.sidebar.title("Controls")
 uploaded_file = st.sidebar.file_uploader("📂 Select Input Video File", type=["mp4", "avi", "mov"])
 
+# Option to toggle preview with a button
+preview_button = st.sidebar.button("Preview Video While Processing")
+
 if uploaded_file:
     # Save the uploaded file temporarily
     temp_input = tempfile.NamedTemporaryFile(delete=False)
@@ -83,7 +87,8 @@ if uploaded_file:
 
     if st.sidebar.button("Process Video"):
         st.sidebar.text("Processing Video...")
-        success = process_video(temp_input_path, temp_output_path)
+        # Process the video with preview if the button is clicked
+        success = process_video(temp_input_path, temp_output_path, preview=preview_button)
         
         if success:
             st.sidebar.text("Processing complete!")
