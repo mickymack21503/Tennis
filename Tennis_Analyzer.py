@@ -15,13 +15,11 @@ def download_file(url, file_path):
     # Download using gdown
     if not os.path.exists(file_path):
         gdown.download(url, file_path, quiet=True)  # Silent download
-        # Removed the download message in the control panel
     
     # Verify the downloaded file is a PyTorch model
     if os.path.getsize(file_path) < 1024 * 1024:  # Check for small file sizes
         os.remove(file_path)
         gdown.download(url, file_path, quiet=True)
-    # Model readiness is no longer shown in the sidebar
 
 # Load YOLO model
 @st.cache_resource
