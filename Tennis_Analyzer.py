@@ -1,4 +1,4 @@
-import os
+import os 
 import gdown
 import streamlit as st
 import tempfile
@@ -24,8 +24,8 @@ def download_file(url, file_path):
 # Load YOLO model
 @st.cache_resource
 def load_model():
-    model_path = "models/yolov8x.pt"
-    model_url = "https://drive.google.com/uc?export=download&id=1F3k5nOXN-BXs_egDTOd7UOQWpI-9H4Sn"
+    model_path = "models/last.pt"  # Updated model file name
+    model_url = "https://drive.google.com/uc?export=download&id=1pno8m1Dz0W0l8Dyn3IrhWO52GAzxhRm0"  # Updated Google Drive link
     
     # Download if not already present
     download_file(model_url, model_path)
