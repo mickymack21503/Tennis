@@ -15,12 +15,14 @@ def download_file(url, file_path):
     # Download using gdown
     if not os.path.exists(file_path):
         gdown.download(url, file_path, quiet=True)  # Silent download
+        # Removed the download message in the control panel
     
     # Verify the downloaded file is a PyTorch model
     if os.path.getsize(file_path) < 1024 * 1024:  # Check for small file sizes
         os.remove(file_path)
         gdown.download(url, file_path, quiet=True)
-    
+    # Model readiness is no longer shown in the sidebar
+
 # Load YOLO model
 @st.cache_resource
 def load_model():
@@ -34,7 +36,7 @@ def load_model():
     model = YOLO(model_path)  # Load the YOLO model directly
     return model
 
-# Process video function with preview option
+# Process video function with preview
 def process_video(input_path, output_path, preview=False):
     model = load_model()
     video = cv2.VideoCapture(input_path)
@@ -59,7 +61,7 @@ def process_video(input_path, output_path, preview=False):
         # Write annotated frame to output
         out.write(annotated_frame)
 
-        # Show preview frame by frame if enabled
+        # If preview is enabled, show the frame
         if preview:
             st.image(annotated_frame, channels="BGR", use_column_width=True)
 
@@ -75,8 +77,8 @@ st.title("🎾 Tennis Game Tracking 🎾")
 st.sidebar.title("Controls")
 uploaded_file = st.sidebar.file_uploader("📂 Select Input Video File", type=["mp4", "avi", "mov"])
 
-# Option to toggle preview with a button
-preview_button = st.sidebar.button("Preview Video While Processing")
+# Option to toggle video preview
+preview_option = st.sidebar.checkbox("Show preview during processing", value=False)
 
 if uploaded_file:
     # Save the uploaded file temporarily
@@ -87,8 +89,7 @@ if uploaded_file:
 
     if st.sidebar.button("Process Video"):
         st.sidebar.text("Processing Video...")
-        # Process the video with preview if the button is clicked
-        success = process_video(temp_input_path, temp_output_path, preview=preview_button)
+        success = process_video(temp_input_path, temp_output_path, preview=preview_option)
         
         if success:
             st.sidebar.text("Processing complete!")
